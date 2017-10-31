@@ -1,8 +1,9 @@
 package com.imooc;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -41,6 +42,38 @@ public class CreateTemplate {
             Element title = root.getChild("title");
             List<Element> trs = title.getChildren("tr");
             for (int i = 0; i < trs.size(); i++) {
+                Element tr = trs.get(i);
+                List<Element> tds = tr.getChildren("td");
+                HSSFRow row = sheet.createRow(rownum);
+                HSSFCellStyle cellStyle = wb.createCellStyle();
+                //cellStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+
+                for (column = 0; column < tds.size(); column++) {
+                    Element td = tds.get(column);
+                    HSSFCell cell = row.createCell(column);
+                    Attribute rowSpan = td.getAttribute("rowspan");
+                    Attribute colSpan = td.getAttribute("colspan");
+                    Attribute value = td.getAttribute("value");
+                    if (value != null) {
+                        String val = value.getValue();
+                        cell.setCellValue(val);
+                        int rspan = rowSpan.getIntValue() - 1;
+                        int cspan = colSpan.getIntValue() - 1;
+
+                        //设置字体
+                        HSSFFont font = wb.createFont();
+                        font.setFontName("仿宋_GB2312");
+                        //font.setBoldweight(HSSFFont.BLODWEIGHT_BOLD);//字体加粗
+                        font.setFontHeight((short) 12);
+                        cellStyle.setFont(font);
+                        cell.setCellStyle(cellStyle);
+
+                        //合并单元格居中
+                        sheet.addMergedRegion(new CellRangeAddress(rspan, rspan, 0, cspan));
+                    }
+
+
+                }
 
             }
 
