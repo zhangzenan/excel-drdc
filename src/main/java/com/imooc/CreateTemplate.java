@@ -71,12 +71,33 @@ public class CreateTemplate {
                         //合并单元格居中
                         sheet.addMergedRegion(new CellRangeAddress(rspan, rspan, 0, cspan));
                     }
-
-
                 }
-
+                rownum++;
+            }
+            //设置表头
+            Element thead = root.getChild("thead");
+            trs = thead.getChildren("tr");
+            for (int i = 0; i < trs.size(); i++) {
+                Element tr = trs.get(i);
+                HSSFRow row = sheet.createRow(rownum);
+                List<Element> ths = tr.getChildren("th");
+                for (int columnIndex = 0; columnIndex < ths.size(); columnIndex++) {
+                    Element th = ths.get(columnIndex);
+                    Attribute valueAttr = th.getAttribute("value");
+                    HSSFCell cell = row.createCell(columnIndex);
+                    if (valueAttr != null) {
+                        String value = valueAttr.getValue();
+                        cell.setCellValue(value);
+                    }
+                }
+                rownum++;
             }
 
+            //设置数据区域样式
+            Element tbody = root.getChild("tbody");
+            Element tr = tbody.getChild("tr");
+            int repeat = tr.getAttribute("repeat").getIntValue();
+            
 
         } catch (JDOMException e) {
             e.printStackTrace();
